@@ -1,0 +1,86 @@
+Queries for EDA: 
+
+1.Clean the data and update the column names to fit with Athena
+
+CREATE VIEW customer_data_clean AS
+SELECT 
+    rownumber,
+    customerid,
+    surname,
+    "first name" AS firstname,
+    "date of birth" AS date_of_birth,
+    gender,
+    "marital status" AS marital_status,
+    "number of dependents" AS number_of_dependents,
+    occupation,
+    income,
+    "education level" AS education_level,
+    address,
+    "contact information" AS contact_information,
+    "customer tenure" AS customer_tenure,
+    "customer segment" AS customer_segment,
+    "preferred communication channel" AS preferred_channel,
+    "credit score" AS credit_score,
+    "credit history length" AS credit_history_length,
+    "outstanding loans" AS outstanding_loans,
+    "churn flag" AS churn_flag
+FROM customer_datalake_parquet;
+
+2. row count
+
+SELECT COUNT(rownumber) FROM customer_data_clean;
+
+3. Churn rate 
+
+SELECT 
+    SUM(churn_flag) AS churned,
+    COUNT(churn_flag) AS total,
+    SUM(churn_flag) * 100.0 / COUNT(churn_flag) AS churn_rate
+FROM customer_data_clean;
+
+4. Gender distribution
+
+SELECT gender, COUNT(*) 
+FROM customer_data_clean
+GROUP BY gender;
+
+5. Average income by customer segment
+
+SELECT customer_segment, AVG(income) AS avg_income
+FROM customer_data_clean
+GROUP BY customer_segment
+ORDER BY avg_income DESC;
+
+6. High-risk customers (credit score + loans)
+
+SELECT credit_score, outstanding_loans
+FROM customer_data_clean
+WHERE credit_score < 600 
+  AND outstanding_loans > 10000;
+
+7. Churn by gender
+
+SELECT 
+    gender,
+    SUM(churn_flag) AS churned,
+    COUNT(*) AS total,
+    SUM(churn_flag) * 100.0 / COUNT(*) AS churn_rate
+FROM customer_data_clean
+GROUP BY gender;
+
+8. Churn by education level
+
+SELECT 
+    education_level,
+    COUNT(*) AS total_customers,
+    SUM(churn_flag) AS churned_customers,
+    SUM(churn_flag) * 100.0 / COUNT(*) AS churn_rate
+FROM customer_data_clean
+GROUP BY education_level
+ORDER BY churn_rate DESC;
+
+
+
+
+
+
